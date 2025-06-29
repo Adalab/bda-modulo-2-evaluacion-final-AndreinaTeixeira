@@ -10,9 +10,47 @@ USE sakila
 /*EJERCICIO 1. Selecciona todos los nombres de las películas sin que aparezcan duplicados*/
 
 SELECT DISTINCT(title)
-FROM FILM; -- comapred with SELECT title FROM FILM; there were no duplicates
+FROM film; -- compared with SELECT title FROM FILM; there were no duplicates
 
-/*EJERCICIO 2.
+/*EJERCICIO 2. Muestra los nombres de todas las películas que tengan una clasificación de "PG-13".*/
+
+SELECT DISTINCT(title)
+FROM film
+WHERE rating = "PG-13";
+
+/*EJERCICIO 3. Encuentra el título y la descripción de todas las películas que contengan la palabra "amazing" en su
+descripción*/
+
+SELECT DISTINCT(title), "description" -- escape the word, it appears as a reserved word in sql
+FROM film
+WHERE title LIKE '%amazing%'; -- looking for "amazing" in any position of the title. Exported SELECT title FROM film; there are no matches.
+
+/*EJERCICIO 4. Encuentra el título de todas las películas que tengan una duración mayor a 120 minutos*/
+
+SELECT DISTINCT(title)
+FROM film
+WHERE length >120;
+
+/*5. Recupera los nombres de todos los actores.*/
+
+SELECT DISTINCT CONCAT(first_name, " ", last_name)
+FROM actor; -- to get the full name
+
+SELECT DISTINCT first_name
+FROM actor; -- to get only the name, 1 duplicated
+
+SELECT CONCAT(first_name, " ", last_name)
+FROM actor; -- to get the full name
+
+/*EJERCICIO 6. Encuentra el nombre y apellido de los actores que tengan "Gibson" en su apellido*/
+
+
+
+
+
+
+
+
 
 
 
