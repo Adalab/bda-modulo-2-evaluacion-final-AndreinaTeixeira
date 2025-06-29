@@ -36,24 +36,43 @@ WHERE length >120;
 SELECT DISTINCT CONCAT(first_name, " ", last_name)
 FROM actor; -- to get the full name
 
-SELECT DISTINCT first_name
-FROM actor; -- to get only the name, 1 duplicated
-
-SELECT CONCAT(first_name, " ", last_name)
-FROM actor; -- to get the full name
-
 /*EJERCICIO 6. Encuentra el nombre y apellido de los actores que tengan "Gibson" en su apellido*/
 
+SELECT first_name, last_name
+FROM actor
+WHERE last_name LIKE 'GIBSON';
 
+/*EJERCICIO 7. Encuentra los nombres de los actores que tengan un actor_id entre 10 y 20.*/
 
+SELECT CONCAT(first_name, " ", last_name)
+FROM actor
+WHERE actor_id BETWEEN 10 AND 20;
 
+/*EJERCICIO 8. Encuentra el título de las películas en la tabla film que no sean ni "R" ni "PG-13" en cuanto a su clasificación.*/
 
+SELECT DISTINCT(title)
+FROM film
+WHERE rating NOT IN ("R", "PG-13");
 
+/*EJERCICIO 9.  Encuentra la cantidad total de películas en cada clasificación de la tabla film y muestra la clasificación
+junto con el recuento.*/
 
+SELECT COUNT(title), rating
+FROM film
+GROUP BY rating;
 
+/*EJERCICIO 10.  Encuentra la cantidad total de películas alquiladas por cada cliente y muestra el ID del cliente, su
+nombre y apellido junto con la cantidad de películas alquiladas.*/
 
+SELECT customer.customer_id, customer.first_name, customer.last_name, COUNT(film.title) AS cantidad_peliculas_alquiladas
+FROM customer
+INNER JOIN rental USING (customer_id)
+INNER JOIN inventory USING (inventory_id)
+INNER JOIN film USING (film_id)
+GROUP BY customer_id; -- no estoy segura de por qué no me deja sin el group by
 
-
+/*EJERCICIO 11. Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría
+junto con el recuento de alquileres.*/
 
 
 
