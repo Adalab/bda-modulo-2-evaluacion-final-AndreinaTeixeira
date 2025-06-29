@@ -69,12 +69,55 @@ FROM customer
 INNER JOIN rental USING (customer_id)
 INNER JOIN inventory USING (inventory_id)
 INNER JOIN film USING (film_id)
-GROUP BY customer_id; -- no estoy segura de por qué no me deja sin el group by
+GROUP BY customer_id;
 
 /*EJERCICIO 11. Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría
 junto con el recuento de alquileres.*/
 
+SELECT COUNT(film.title) AS cantidad_peliculas_alquiladas, category.name
+FROM customer
+INNER JOIN rental USING (customer_id)
+INNER JOIN inventory USING (inventory_id)
+INNER JOIN film USING (film_id)
+INNER JOIN film_category USING (film_id)
+INNER JOIN category USING (category_id)
+GROUP BY category.name;
 
+/*EJERCICIO 12. Encuentra el promedio de duración de las películas para cada clasificación de la tabla film y muestra la
+clasificación junto con el promedio de duración.*/
 
+SELECT AVG(film.length), rating
+FROM film
+GROUP BY rating;
 
+/*EJERCICIO 13. Encuentra el nombre y apellido de los actores que aparecen en la película con title "Indian Love".*/
+
+SELECT DISTINCT CONCAT (actor.first_name, " ", actor.last_name) AS actor_full_name
+FROM actor
+INNER JOIN film_actor USING (actor_id)
+INNER JOIN film USING (film_id)
+WHERE film.title = "Indian Love";
+
+/*EJERCICIO 14. Muestra el título de todas las películas que contengan la palabra "dog" o "cat" en su descripción.*/
+
+SELECT title
+FROM film
+WHERE "description" REGEXP ("^$DOG&" OR "^$CAT&"); -- INCOMPLETOOOO, NO FUNCIONA!!!!!!!!!!!!!
+
+/*EJERCICIO 15. Encuentra el título de todas las películas que fueron lanzadas entre el año 2005 y 2010.*/
+
+SELECT title
+FROM film
+WHERE release_year BETWEEN 2005 AND 2010;
+
+/*EJERCICIO 16. Encuentra el título de todas las películas que son de la misma categoría que "Family".*/
+
+SELECT film.title, category.name
+FROM film
+INNER JOIN film_category USING (film_id)
+INNER JOIN category USING (category_id)
+WHERE category.name = "Family";
+
+/*EJERCICIO 17. Encuentra el título de todas las películas que son "R" y tienen una duración mayor a 2 horas en la tabla
+film.*/
 
