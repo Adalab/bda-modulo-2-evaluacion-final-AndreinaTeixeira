@@ -126,7 +126,9 @@ SELECT DISTINCT(title)
 FROM film
 WHERE rating = "R" AND length >120;
 
-/*18. Muestra el nombre y apellido de los actores que aparecen en más de 10 películas.*/
+/*																				EXTRAS		
+	
+18. Muestra el nombre y apellido de los actores que aparecen en más de 10 películas.*/
 
 SELECT actor.first_name, actor.last_name, COUNT(film.film_id) AS cantidad_peliculas
 FROM actor
@@ -172,16 +174,72 @@ HAVING cantidad_peliculas >= 5;
 subconsulta para encontrar los rental_ids con una duración superior a 5 días y luego selecciona las
 películas correspondientes.*/
 
+SELECT rental_id
+FROM rental
+INNER JOIN inventory USING (inventory_id)
+INNER JOIN film USING (film_id)
+WHERE rental_duration >5;
+
+
+SELECT DISTINCT film.title
+FROM film
+INNER JOIN inventory USING (film_id)
+INNER JOIN rental USING (inventory_id)
+WHERE rental.rental_id IN (
+	SELECT rental.rental_id
+	FROM rental
+	INNER JOIN inventory USING (inventory_id)
+	INNER JOIN film USING (film_id)
+	WHERE film.rental_duration >5
+);
 
 /*23. Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría
 "Horror". Utiliza una subconsulta para encontrar los actores que han actuado en películas de la
 categoría "Horror" y luego exclúyelos de la lista de actores.*/
 
+SELECT DISTINCT CONCAT(actor.first_name, " ", actor.last_name)
+FROM actor
+INNER JOIN film_actor USING (actor_id)
+INNER JOIN film USING (film_id)
+INNER JOIN film_category USING (film_id)
+INNER JOIN category USING (category_id)
+WHERE category.name IN ("Horror");
+
+SELECT DISTINCT CONCAT(actor.first_name, " ", actor.last_name)
+FROM actor
+INNER JOIN film_actor USING (actor_id)
+INNER JOIN film USING (film_id)
+INNER JOIN film_category USING (film_id)
+INNER JOIN category USING (category_id)
+WHERE CONCAT(actor.first_name, " ", actor.last_name) NOT IN (
+	SELECT DISTINCT CONCAT(actor.first_name, " ", actor.last_name)
+	FROM actor
+	INNER JOIN film_actor USING (actor_id)
+	INNER JOIN film USING (film_id)
+	INNER JOIN film_category USING (film_id)
+	INNER JOIN category USING (category_id)
+	WHERE category.name IN ("Horror")
+);
 
 /*24. Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la
 tabla film.*/
 
+SELECT film.title
+FROM film
+INNER JOIN film_category USING (film_id)
+INNER JOIN category USING (category_id)
+WHERE category.name = "Comedy" AND film.length > 180;
 
 /*25. Encuentra todos los actores que han actuado juntos en al menos una película. La consulta debe mostrar
 el nombre y apellido de los actores y el número de películas en las que han actuado juntos.*/
 
+SELECT CONCAT(a1.first_name, " ", a1.last_name), CONCAT(a2.first_name, " ", a2.last_name), COUNT(f1.film_id) AS cantidad_peliculas_juntos
+FROM film_actor AS f1
+JOIN film_actor AS f2
+INNER JOIN actor USING (actor_id)
+ON f1.film_id = f2.film_id -- igual pelicula
+WHERE a1.actor_id <> a2.actor_id -- distinto actor
+JOIN actor a ON fa1.actor_id = a.actor_id
+JOIN actor b ON fa2.actor_id = b.actor_id
+GROUP BY a.actor_id, a.first_name, a.last_name, b.actor_id, b.first_name, b.last_name
+HAVING cantidad_peliculas_juntos > 1;
