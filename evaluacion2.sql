@@ -86,7 +86,7 @@ GROUP BY category.name;
 /*EJERCICIO 12. Encuentra el promedio de duración de las películas para cada clasificación de la tabla film y muestra la
 clasificación junto con el promedio de duración.*/
 
-SELECT AVG(film.length), rating
+SELECT rating, AVG(film.length)
 FROM film
 GROUP BY rating;
 
@@ -113,7 +113,7 @@ WHERE release_year BETWEEN 2005 AND 2010;
 
 /*EJERCICIO 16. Encuentra el título de todas las películas que son de la misma categoría que "Family".*/
 
-SELECT film.title, category.name
+SELECT film.title
 FROM film
 INNER JOIN film_category USING (film_id)
 INNER JOIN category USING (category_id)
@@ -128,17 +128,45 @@ WHERE rating = "R" AND length >120;
 
 /*18. Muestra el nombre y apellido de los actores que aparecen en más de 10 películas.*/
 
+SELECT actor.first_name, actor.last_name, COUNT(film.film_id) AS cantidad_peliculas
+FROM actor
+INNER JOIN film_actor USING (actor_id)
+INNER JOIN film USING (film_id)
+GROUP BY actor_id
+HAVING cantidad_peliculas >10;
 
 /*19. Hay algún actor o actriz que no apareca en ninguna película en la tabla film_actor.*/
 
+SELECT actor.first_name, actor.last_name, film_actor.film_id
+FROM actor
+INNER JOIN film_actor USING (actor_id)
+WHERE film_id IS NULL;
+
+SELECT actor.actor_id, COUNT(film_actor.film_id) AS cantidad_peliculas
+FROM actor
+INNER JOIN film_actor USING (actor_id)
+GROUP BY actor_id
+HAVING cantidad_peliculas IS NULL OR cantidad_peliculas = 0;
 
 /*20. Encuentra las categorías de películas que tienen un promedio de duración superior a 120 minutos y
 muestra el nombre de la categoría junto con el promedio de duración.*/
 
+SELECT category.name, AVG(film.length) AS promedio
+FROM category
+INNER JOIN film_category USING (category_id)
+INNER JOIN film USING (film_id)
+GROUP BY category.name
+HAVING promedio > 120;
 
 /*21. Encuentra los actores que han actuado en al menos 5 películas y muestra el nombre del actor junto con
 la cantidad de películas en las que han actuado.*/
 
+SELECT CONCAT(actor.first_name, " ", actor.last_name), COUNT(film.film_id) AS cantidad_peliculas
+FROM actor
+INNER JOIN film_actor USING (actor_id)
+INNER JOIN film USING (film_id)
+GROUP BY actor_id
+HAVING cantidad_peliculas >= 5;
 
 /*22. Encuentra el título de todas las películas que fueron alquiladas por más de 5 días. Utiliza una
 subconsulta para encontrar los rental_ids con una duración superior a 5 días y luego selecciona las
