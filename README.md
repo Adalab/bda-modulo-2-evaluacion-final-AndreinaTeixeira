@@ -1,4 +1,4 @@
-This document contains my answer to Adalab's Module 2 Evaluation for the Data Analytics Part-Time Bootcamp.
+This document contains my answers to Adalab's Module 2 Evaluation for the Data Analytics Part-Time Bootcamp.
 
 Technologies used: SQL (basic and advanced queries, subqueries, filters, etc.)
 
