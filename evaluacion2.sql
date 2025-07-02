@@ -1,5 +1,5 @@
 /*Base de Datos Sakila:
-Para este ejerccio utilizaremos la BBDD Sakila que hemos estado utilizando durante el repaso de SQL. Es una
+Para este ejercicio utilizaremos la BBDD Sakila que hemos estado utilizando durante el repaso de SQL. Es una
 base de datos de ejemplo que simula una tienda de alquiler de películas. Contiene tablas como film
 (películas), actor (actores), customer (clientes), rental (alquileres), category (categorías), entre otras. Estas
 tablas contienen información sobre películas, actores, clientes, alquileres y más, y se utilizan para realizar
@@ -9,7 +9,7 @@ USE sakila
 
 /*EJERCICIO 1. Selecciona todos los nombres de las películas sin que aparezcan duplicados*/
 
-SELECT DISTINCT(title)
+SELECT DISTINCT(title) -- without duplicates
 FROM film; -- compared with SELECT title FROM FILM; there were no duplicates
 
 /*EJERCICIO 2. Muestra los nombres de todas las películas que tengan una clasificación de "PG-13".*/
@@ -21,9 +21,9 @@ WHERE rating = "PG-13";
 /*EJERCICIO 3. Encuentra el título y la descripción de todas las películas que contengan la palabra "amazing" en su
 descripción*/
 
-SELECT title, "description" -- escape the word, it appears as a reserved word in sql
+SELECT title, description -- escape the word, it appears as a reserved word in sql
 FROM film
-WHERE title LIKE '%amazing%'; -- looking for "amazing" in any position of the title. Exported SELECT title FROM film; there are no matches.
+WHERE description LIKE '%amazing%'; -- looking for "amazing" in any position of the description
 
 /*EJERCICIO 4. Encuentra el título de todas las películas que tengan una duración mayor a 120 minutos*/
 
@@ -33,20 +33,20 @@ WHERE length >120;
 
 /*5. Recupera los nombres de todos los actores.*/
 
-SELECT DISTINCT CONCAT(first_name, " ", last_name)
-FROM actor; -- to get the full name
+SELECT DISTINCT CONCAT(first_name, " ", last_name) -- to get the full name in a single cell, without duplicates
+FROM actor; 
 
 /*EJERCICIO 6. Encuentra el nombre y apellido de los actores que tengan "Gibson" en su apellido*/
 
 SELECT first_name, last_name
 FROM actor
-WHERE last_name LIKE 'GIBSON';
+WHERE last_name LIKE 'GIBSON'; -- Gibson as a full last name, complete word
 
 /*EJERCICIO 7. Encuentra los nombres de los actores que tengan un actor_id entre 10 y 20.*/
 
 SELECT CONCAT(first_name, " ", last_name) AS actor_full_name
 FROM actor
-WHERE actor_id BETWEEN 10 AND 20;
+WHERE actor_id BETWEEN 10 AND 20; -- includes 10 and 20
 
 /*EJERCICIO 8. Encuentra el título de las películas en la tabla film que no sean ni "R" ni "PG-13" en cuanto a su clasificación.*/
 
@@ -57,14 +57,14 @@ WHERE rating NOT IN ("R", "PG-13");
 /*EJERCICIO 9.  Encuentra la cantidad total de películas en cada clasificación de la tabla film y muestra la clasificación
 junto con el recuento.*/
 
-SELECT COUNT(title), rating
+SELECT rating, COUNT(title)
 FROM film
 GROUP BY rating;
 
 /*EJERCICIO 10.  Encuentra la cantidad total de películas alquiladas por cada cliente y muestra el ID del cliente, su
 nombre y apellido junto con la cantidad de películas alquiladas.*/
 
-SELECT customer.customer_id, customer.first_name, customer.last_name, COUNT(film.title) AS cantidad_peliculas_alquiladas
+SELECT customer.customer_id, customer.first_name, customer.last_name, COUNT(film.title) AS cantidad_peliculas_alquiladas -- same result with rental_id in count
 FROM customer
 INNER JOIN rental USING (customer_id)
 INNER JOIN inventory USING (inventory_id)
@@ -74,7 +74,7 @@ GROUP BY customer_id;
 /*EJERCICIO 11. Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría
 junto con el recuento de alquileres.*/
 
-SELECT COUNT(film.title) AS cantidad_peliculas_alquiladas, category.name
+SELECT COUNT(film.title) AS cantidad_peliculas_alquiladas, category.name -- same result with rental_id in count
 FROM customer
 INNER JOIN rental USING (customer_id)
 INNER JOIN inventory USING (inventory_id)
@@ -100,11 +100,17 @@ WHERE film.title = "Indian Love";
 
 /*EJERCICIO 14. Muestra el título de todas las películas que contengan la palabra "dog" o "cat" en su descripción.*/
 
-SELECT title
+SELECT description
 FROM film
-WHERE "description" LIKE "% DOG%" OR "description" LIKE "% CAT%" -- INCOMPLETOOOO, NO FUNCIONA!!!!!!!!!!!!!
-AND "description" LIKE "%DOG %" OR "description" LIKE "%CAT %";
-
+WHERE description LIKE '% DOG %'
+	OR description LIKE 'DOG %'
+	OR description LIKE '% DOG'
+    OR description LIKE 'DOG'
+    OR description LIKE '% CAT %'
+    OR description LIKE 'CAT %'
+	OR description LIKE '% CAT'
+    OR description LIKE 'CAT'; -- espacios antes y despu-es, solo antes, solo despuºes o palabra completa
+    
 /*EJERCICIO 15. Encuentra el título de todas las películas que fueron lanzadas entre el año 2005 y 2010.*/
 
 SELECT title
@@ -124,7 +130,7 @@ film.*/
 
 SELECT DISTINCT(title)
 FROM film
-WHERE rating = "R" AND length >120;
+WHERE rating = "R" AND length >120; -- 2 hours are 120 minutes
 
 /*																				EXTRAS		
 	
@@ -141,14 +147,8 @@ HAVING cantidad_peliculas >10;
 
 SELECT actor.first_name, actor.last_name, film_actor.film_id
 FROM actor
-INNER JOIN film_actor USING (actor_id)
+LEFT JOIN film_actor USING (actor_id) -- all actors, even with no coincidences
 WHERE film_id IS NULL;
-
-SELECT actor.actor_id, COUNT(film_actor.film_id) AS cantidad_peliculas
-FROM actor
-INNER JOIN film_actor USING (actor_id)
-GROUP BY actor_id
-HAVING cantidad_peliculas IS NULL OR cantidad_peliculas = 0;
 
 /*20. Encuentra las categorías de películas que tienen un promedio de duración superior a 120 minutos y
 muestra el nombre de la categoría junto con el promedio de duración.*/
@@ -174,13 +174,6 @@ HAVING cantidad_peliculas >= 5;
 subconsulta para encontrar los rental_ids con una duración superior a 5 días y luego selecciona las
 películas correspondientes.*/
 
-SELECT rental_id
-FROM rental
-INNER JOIN inventory USING (inventory_id)
-INNER JOIN film USING (film_id)
-WHERE rental_duration >5;
-
-
 SELECT DISTINCT film.title
 FROM film
 INNER JOIN inventory USING (film_id)
@@ -190,20 +183,12 @@ WHERE rental.rental_id IN (
 	FROM rental
 	INNER JOIN inventory USING (inventory_id)
 	INNER JOIN film USING (film_id)
-	WHERE film.rental_duration >5
+	WHERE DATEDIFF(rental.return_date, rental.rental_date) > 5
 );
 
 /*23. Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría
 "Horror". Utiliza una subconsulta para encontrar los actores que han actuado en películas de la
 categoría "Horror" y luego exclúyelos de la lista de actores.*/
-
-SELECT DISTINCT CONCAT(actor.first_name, " ", actor.last_name)
-FROM actor
-INNER JOIN film_actor USING (actor_id)
-INNER JOIN film USING (film_id)
-INNER JOIN film_category USING (film_id)
-INNER JOIN category USING (category_id)
-WHERE category.name IN ("Horror");
 
 SELECT DISTINCT CONCAT(actor.first_name, " ", actor.last_name)
 FROM actor
@@ -229,17 +214,3 @@ FROM film
 INNER JOIN film_category USING (film_id)
 INNER JOIN category USING (category_id)
 WHERE category.name = "Comedy" AND film.length > 180;
-
-/*25. Encuentra todos los actores que han actuado juntos en al menos una película. La consulta debe mostrar
-el nombre y apellido de los actores y el número de películas en las que han actuado juntos.*/
-
-SELECT CONCAT(a1.first_name, " ", a1.last_name), CONCAT(a2.first_name, " ", a2.last_name), COUNT(f1.film_id) AS cantidad_peliculas_juntos
-FROM film_actor AS f1
-JOIN film_actor AS f2
-INNER JOIN actor USING (actor_id)
-ON f1.film_id = f2.film_id -- igual pelicula
-WHERE a1.actor_id <> a2.actor_id -- distinto actor
-JOIN actor a ON fa1.actor_id = a.actor_id
-JOIN actor b ON fa2.actor_id = b.actor_id
-GROUP BY a.actor_id, a.first_name, a.last_name, b.actor_id, b.first_name, b.last_name
-HAVING cantidad_peliculas_juntos > 1;
